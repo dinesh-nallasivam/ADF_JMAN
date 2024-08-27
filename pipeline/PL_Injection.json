@@ -1,6 +1,144 @@
 {
 	"name": "PL_Injection",
 	"properties": {
+		"activities": [
+			{
+				"name": "Consolidation",
+				"description": "",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ExcelSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"wildcardFileName": "*Superstore.xlsx",
+							"enablePartitionDiscovery": false
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_Input_Order_Storage",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container_Name": "input"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_Consolidation_Storage",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container_Name": "consolidationfolder",
+							"Folder_Name": "superStore",
+							"File_Name": "superStore"
+						}
+					}
+				]
+			},
+			{
+				"name": "MovingToSql",
+				"description": "Moving from local to blob storage",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Consolidation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_Consolidation_Storage",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container_Name": "consolidationfolder",
+							"Folder_Name": "superStore",
+							"File_Name": "superStore"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_Sql",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "raw",
+							"Table_Name": "superStore"
+						}
+					}
+				]
+			}
+		],
 		"folder": {
 			"name": "PL_Question_2"
 		},
