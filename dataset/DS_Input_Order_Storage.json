@@ -13,14 +13,15 @@
 		"annotations": [],
 		"type": "Excel",
 		"typeProperties": {
-			"sheetName": "sheet 1",
+			"sheetName": "Sheet1",
 			"location": {
 				"type": "AzureBlobStorageLocation",
 				"container": {
 					"value": "@dataset().Container_Name",
 					"type": "Expression"
 				}
-			}
+			},
+			"firstRowAsHeader": true
 		},
 		"schema": []
 	}

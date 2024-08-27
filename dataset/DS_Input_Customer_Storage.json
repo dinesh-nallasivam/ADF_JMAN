@@ -1,5 +1,5 @@
 {
-	"name": "DS_Input_Storage",
+	"name": "DS_Input_Customer_Storage",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "LS_AZURE_BLOB_STORAGE",

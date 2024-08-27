@@ -1,0 +1,108 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"folder": {
+			"name": "Question_1"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_Sql",
+						"type": "DatasetReference"
+					},
+					"name": "Order",
+					"description": "Import data prep stage of order"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_Sql",
+						"type": "DatasetReference"
+					},
+					"name": "Customer",
+					"description": "Import data prep stage of Customer"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Sql",
+						"type": "DatasetReference"
+					},
+					"name": "SinkReport",
+					"description": "Details report of the order"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Joining",
+					"description": "Joining table to get the customer details of the order placed"
+				},
+				{
+					"name": "select",
+					"description": "selecting the specific columns"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          OrderID as string,",
+				"          ProductID as string,",
+				"          ProductName as string,",
+				"          Quantity as integer,",
+				"          OrderDate as date,",
+				"          Price as float,",
+				"          CustomerID as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> Order",
+				"source(output(",
+				"          CustomerID as string,",
+				"          FirstName as string,",
+				"          Email as string,",
+				"          PhoneNumber as string,",
+				"          State as string,",
+				"          Country as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> Customer",
+				"Order, Customer join(Order@CustomerID == Customer@CustomerID,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> Joining",
+				"Joining select(mapColumn(",
+				"          OrderID,",
+				"          ProductID,",
+				"          ProductName,",
+				"          Quantity,",
+				"          OrderDate,",
+				"          Price,",
+				"          CustomerID = Order@CustomerID,",
+				"          FirstName,",
+				"          Email,",
+				"          PhoneNumber,",
+				"          State,",
+				"          Country",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select",
+				"select sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     recreate:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> SinkReport"
+			]
+		}
+	}
+}

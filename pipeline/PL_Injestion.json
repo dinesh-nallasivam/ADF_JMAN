@@ -53,7 +53,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "DS_Input_Storage",
+						"referenceName": "DS_Input_Customer_Storage",
 						"type": "DatasetReference",
 						"parameters": {
 							"Container_Name": "input"
@@ -165,15 +165,12 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "DelimitedTextSource",
+						"type": "ExcelSource",
 						"storeSettings": {
 							"type": "AzureBlobStorageReadSettings",
 							"recursive": true,
 							"wildcardFileName": "*.xlsx",
 							"enablePartitionDiscovery": false
-						},
-						"formatSettings": {
-							"type": "DelimitedTextReadSettings"
 						}
 					},
 					"sink": {
@@ -200,7 +197,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "DS_Input_Storage",
+						"referenceName": "DS_Input_Order_Storage",
 						"type": "DatasetReference",
 						"parameters": {
 							"Container_Name": "input"
@@ -290,6 +287,9 @@
 				]
 			}
 		],
+		"folder": {
+			"name": "PL_Question_1"
+		},
 		"annotations": [],
 		"lastPublishTime": "2024-08-27T08:10:49Z"
 	},
