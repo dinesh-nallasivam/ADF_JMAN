@@ -16,7 +16,14 @@
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "cast1"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          {Row ID} as string,",
@@ -44,7 +51,24 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> SuperStore"
+				"     format: 'table') ~> SuperStore",
+				"SuperStore select(mapColumn(",
+				"          {Order ID},",
+				"          Country,",
+				"          Region,",
+				"          {Product Name},",
+				"          Sales,",
+				"          Quantity,",
+				"          Profit",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> select1",
+				"select1 cast(output(",
+				"          Sales as integer '000',",
+				"          Quantity as float '000.##',",
+				"          Profit as float '000.##'",
+				"     ),",
+				"     errors: true) ~> cast1"
 			]
 		}
 	}
