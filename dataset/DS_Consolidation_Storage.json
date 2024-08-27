@@ -1,5 +1,5 @@
 {
-	"name": "DS_Consolidation_Customer_Storage",
+	"name": "DS_Consolidation_Storage",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "LS_AZURE_BLOB_STORAGE",

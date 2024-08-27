@@ -31,12 +31,7 @@
 						"type": "DelimitedTextSink",
 						"storeSettings": {
 							"type": "AzureBlobStorageWriteSettings",
-							"copyBehavior": "MergeFiles",
-							"metadata": [
-								{
-									"value": ""
-								}
-							]
+							"copyBehavior": "MergeFiles"
 						},
 						"formatSettings": {
 							"type": "DelimitedTextWriteSettings",
@@ -65,10 +60,10 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "DS_Consolidation_Customer_Storage",
+						"referenceName": "DS_Consolidation_Storage",
 						"type": "DatasetReference",
 						"parameters": {
-							"Container_Name": "consolidation",
+							"Container_Name": "consolidationfolder",
 							"Folder_Name": "customer",
 							"File_Name": "customer"
 						}
@@ -76,37 +71,8 @@
 				]
 			},
 			{
-				"name": "Order",
+				"name": "Customer Injestion stageing",
 				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"source": {
-						"type": "ExcelSource",
-						"storeSettings": {
-							"type": "AzureBlobStorageReadSettings",
-							"recursive": true,
-							"wildcardFileName": "*.xlsx",
-							"enablePartitionDiscovery": false
-						}
-					},
-					"enableStaging": false
-				}
-			},
-			{
-				"name": "sql customer",
-				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Customer",
@@ -135,12 +101,123 @@
 							"type": "DelimitedTextReadSettings"
 						}
 					},
-					"enableStaging": false
-				}
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_Consolidation_Storage",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container_Name": "consolidationfolder",
+							"Folder_Name": "customer",
+							"File_Name": "customer"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_Sql",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "raw",
+							"Table_Name": "customer"
+						}
+					}
+				]
 			},
 			{
-				"name": "sql order",
+				"name": "Order",
 				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Customer Injestion stageing",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"wildcardFileName": "*.xlsx",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings",
+							"copyBehavior": "MergeFiles"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_Input_Storage",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container_Name": "input"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_Consolidation_Storage",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container_Name": "consolidationfolder",
+							"Folder_Name": "order",
+							"File_Name": "order"
+						}
+					}
+				]
+			},
+			{
+				"name": "Order Injestion stageing",
+				"type": "Copy",
+				"state": "Active",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Order",
@@ -169,8 +246,42 @@
 							"type": "DelimitedTextReadSettings"
 						}
 					},
-					"enableStaging": false
-				}
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_Consolidation_Storage",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container_Name": "consolidationfolder",
+							"Folder_Name": "order",
+							"File_Name": "order"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_Sql",
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "raw",
+							"Table_Name": "order"
+						}
+					}
+				]
 			}
 		],
 		"annotations": [],
