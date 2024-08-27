@@ -1,0 +1,26 @@
+{
+	"name": "DS_Input_Order_Storage",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_AZURE_BLOB_STORAGE",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"Container_Name": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": {
+					"value": "@dataset().Container_Name",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": []
+	}
+}
