@@ -30,6 +30,9 @@
 				{
 					"name": "Select",
 					"description": "selecting the specific columns that we need"
+				},
+				{
+					"name": "derivedColumn1"
 				}
 			],
 			"scriptLines": [
@@ -59,7 +62,8 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> Select",
-				"Select sink(allowSchemaDrift: true,",
+				"Select derive(State = iif(State , 'd', State)) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     deletable:false,",
 				"     insertable:true,",
