@@ -1,0 +1,9 @@
+{
+	"name": "JMD355-Dinesh",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "ce3e570a-07de-418b-8b04-2114ebe17221",
+		"tenantId": "2800c0a0-70e9-49be-8733-faeaa6aced99"
+	}
+}
