@@ -1,0 +1,83 @@
+{
+	"name": "DF_Prep_Order",
+	"properties": {
+		"folder": {
+			"name": "Question_1"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_Sql",
+						"type": "DatasetReference"
+					},
+					"name": "Order",
+					"description": "Extracting the raw order details "
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Sql",
+						"type": "DatasetReference"
+					},
+					"name": "SinkCleaned",
+					"description": "Moving the customer table to the prep stage"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Casting"
+				},
+				{
+					"name": "select",
+					"description": "Renaming the order time stamp"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          OrderID as string,",
+				"          ProductID as string,",
+				"          ProductName as string,",
+				"          Quantity as string,",
+				"          OrderTimestamp as string,",
+				"          Price as string,",
+				"          CustomerID as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> Order",
+				"select cast(output(",
+				"          Quantity as integer '000',",
+				"          OrderDate as date 'yyyy-MM-dd',",
+				"          Price as float '000.##'",
+				"     ),",
+				"     errors: true) ~> Casting",
+				"Order select(mapColumn(",
+				"          OrderID,",
+				"          ProductID,",
+				"          ProductName,",
+				"          Quantity,",
+				"          OrderDate = OrderTimestamp,",
+				"          Price,",
+				"          CustomerID",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select",
+				"Casting sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     recreate:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> SinkCleaned"
+			]
+		}
+	}
+}
