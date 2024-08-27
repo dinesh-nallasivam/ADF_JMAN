@@ -5,12 +5,20 @@
 			"referenceName": "LS_AZURE_BLOB_STORAGE",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"Container_Name": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"container": "input"
+				"container": {
+					"value": "@dataset().Container_Name",
+					"type": "Expression"
+				}
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
