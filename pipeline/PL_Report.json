@@ -1,6 +1,46 @@
 {
 	"name": "PL_Report",
 	"properties": {
+		"activities": [
+			{
+				"name": "OrderFact",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "DF_Order_Fact",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"Order": {
+								"Schema": "prep",
+								"Table_Name": "order"
+							},
+							"Customer": {
+								"Schema": "prep",
+								"Table_Name": "customer"
+							},
+							"SinkReport": {
+								"Schema": "report",
+								"Table_Name": "orderFact"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
 		"folder": {
 			"name": "PL_Question_1"
 		},
