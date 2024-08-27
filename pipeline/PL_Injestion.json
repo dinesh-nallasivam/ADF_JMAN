@@ -59,13 +59,19 @@
 				"inputs": [
 					{
 						"referenceName": "DS_Input_Storage",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"Container_Name": "input"
+						}
 					}
 				],
 				"outputs": [
 					{
 						"referenceName": "DS_Consolidation_Customer_Storage",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"Container_Name": "consolidation"
+						}
 					}
 				]
 			},
